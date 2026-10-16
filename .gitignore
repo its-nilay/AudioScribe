@@ -1,0 +1,44 @@
+﻿# ── Python ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+
+# ── Virtual environments ─────────────────────────────────────
+backend/.venv/
+backend/venv/
+.venv/
+venv/
+
+# ── Environment / secrets ────────────────────────────────────
+backend/.env
+.env
+
+# ── Runtime data (uploads & generated files) ────────────────
+backend/data/
+backend/sample.wav
+
+# ── Whisper model cache ───────────────────────────────────────
+# Whisper downloads model weights (~140 MB) on first run to
+# ~/.cache/whisper or %USERPROFILE%\.cache\whisper — not in repo.
+
+# ── OS artefacts ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Editor / IDE ─────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ── Build & dist ─────────────────────────────────────────────
+dist/
+build/
+*.egg-info/
+
+# ── Project-specific ─────────────────────────────────────────
+VIDEO_SCRIPT.md
+ANSWERS.md

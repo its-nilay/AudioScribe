@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AudioScribe — AI Transcription Pipeline</title>
+  <meta name="description" content="Upload any audio file and receive an accurate, timestamped transcript powered by OpenAI Whisper." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- Animated background orbs -->
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <div class="page-wrap">
+
+    <!-- ── Header ─────────────────────────────────────────── -->
+    <header class="site-header">
+      <div class="logo">
+        <span class="logo-icon">🎙</span>
+        <span class="logo-text">AudioScribe</span>
+        <span class="logo-badge">AI</span>
+      </div>
+      <div class="header-meta">
+        <span class="powered-by">Powered by OpenAI Whisper</span>
+        <span class="api-status" id="apiStatus">
+          <span class="dot"></span> Connecting…
+        </span>
+      </div>
+    </header>
+
+    <!-- ── Hero ───────────────────────────────────────────── -->
+    <section class="hero">
+      <h1 class="hero-title">
+        Turn <span class="gradient-text">Speech</span> into
+        <span class="gradient-text">Structured Text</span>
+      </h1>
+      <p class="hero-sub">
+        Upload WAV, MP3, M4A, OGG, FLAC or WebM — get back a full transcript
+        with per-segment timestamps in seconds.
+      </p>
+    </section>
+
+    <!-- ── Upload card ────────────────────────────────────── -->
+    <section class="card upload-card" id="uploadCard">
+      <div
+        class="drop-zone"
+        id="dropZone"
+        tabindex="0"
+        role="button"
+        aria-label="Upload audio file"
+      >
+        <div class="drop-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 8.25H7.5a2.25 2.25 0 0 0-2.25 2.25v9a2.25 2.25 0 0 0 2.25 2.25h9a2.25
+                 2.25 0 0 0 2.25-2.25v-9a2.25 2.25 0 0 0-2.25-2.25H15m0-3-3-3m0 0-3 3m3-3V15" />
+          </svg>
+        </div>
+        <p class="drop-primary">Drag &amp; drop your audio file</p>
+        <p class="drop-secondary">or <label for="fileInput" class="file-link" onclick="event.stopPropagation()">browse files</label></p>
+        <p class="drop-formats">WAV · MP3 · M4A · OGG · FLAC · WebM</p>
+        <input type="file" id="fileInput" accept=".wav,.mp3,.m4a,.ogg,.flac,.webm" hidden />
+      </div>
+
+      <!-- Selected file info -->
+      <div class="file-info hidden" id="fileInfo">
+        <div class="file-icon">🎵</div>
+        <div class="file-details">
+          <span class="file-name" id="fileName"></span>
+          <span class="file-size" id="fileSize"></span>
+        </div>
+        <button class="btn-clear" id="clearFile" title="Remove file">✕</button>
+      </div>
+
+      <button class="btn-primary" id="submitBtn" disabled>
+        <span class="btn-label">Transcribe Audio</span>
+        <span class="btn-arrow">→</span>
+      </button>
+    </section>
+
+    <!-- ── Processing card ────────────────────────────────── -->
+    <section class="card process-card hidden" id="processCard">
+      <div class="process-anim">
+        <div class="wave-bars">
+          <span></span><span></span><span></span><span></span><span></span>
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+      </div>
+      <h2 class="process-title">Transcribing…</h2>
+      <p class="process-sub" id="processStatus">Uploading file to the server</p>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
+      <p class="job-id-label">Job ID: <code id="jobIdDisplay"></code></p>
+    </section>
+
+    <!-- ── Result card ────────────────────────────────────── -->
+    <section class="card result-card hidden" id="resultCard">
+
+      <div class="result-header">
+        <div class="result-meta-group">
+          <span class="result-badge success">✓ Completed</span>
+          <span class="lang-badge hidden" id="langBadge"></span>
+          <span class="chunk-badge hidden" id="chunkBadge"></span>
+        </div>
+        <div class="result-actions">
+          <button class="btn-ghost" id="copyBtn" title="Copy transcript">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+              <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+            </svg>
+            Copy
+          </button>
+          <button class="btn-ghost" id="downloadBtn" title="Download JSON">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download
+          </button>
+          <button class="btn-ghost" id="newTranscriptionBtn">+ New</button>
+        </div>
+      </div>
+
+      <!-- Audio player for verification -->
+      <div class="audio-player-card" id="audioPlayerCard">
+        <div class="audio-player-header">
+          <div class="audio-player-title">
+            <span class="audio-icon">🎧</span>
+            <div>
+              <div class="audio-label">Audio Playback &amp; Verification</div>
+              <div class="audio-sublabel">Listen to verify accuracy · Click any timestamp segment to jump directly</div>
+            </div>
+          </div>
+          <span class="audio-filename-badge" id="audioFilenameBadge"></span>
+        </div>
+        <audio id="audioPlayer" controls preload="metadata" class="audio-player"></audio>
+      </div>
+
+      <!-- Full transcript -->
+      <div class="transcript-box" id="transcriptBox">
+        <p class="transcript-text" id="transcriptText"></p>
+        <p class="transcript-empty hidden" id="transcriptEmpty">
+          No speech detected in this audio file.
+        </p>
+      </div>
+
+      <!-- Segments timeline -->
+      <div class="segments-wrap" id="segmentsWrap">
+        <h3 class="segments-title">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Timestamped Segments
+        </h3>
+        <div class="segments-list" id="segmentsList"></div>
+      </div>
+
+    </section>
+
+    <!-- ── Error card ─────────────────────────────────────── -->
+    <section class="card error-card hidden" id="errorCard">
+      <div class="error-icon">⚠</div>
+      <h2 class="error-title">Transcription failed</h2>
+      <p class="error-msg" id="errorMsg"></p>
+      <button class="btn-primary" id="retryBtn">Try Again</button>
+    </section>
+
+    <!-- ── How it works ───────────────────────────────────── -->
+    <section class="how-it-works">
+      <h2 class="section-title">How it works</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-icon">📤</div>
+          <h3>Upload</h3>
+          <p>Your audio file is sent to the FastAPI backend, validated, and given a unique job ID.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-icon">🔄</div>
+          <h3>Convert</h3>
+          <p>Any format (MP3, M4A, OGG…) is normalised to 16 kHz mono WAV via FFmpeg for Whisper compatibility.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-icon">🧠</div>
+          <h3>Transcribe</h3>
+          <p>OpenAI Whisper runs inference. Long audio is split into overlapping chunks to stay memory-efficient.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <div class="step-icon">📋</div>
+          <h3>Results</h3>
+          <p>Full text, auto-detected language, and per-segment timestamps are returned and displayed here.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="site-footer">
+      <p>AI Audio Transcription Pipeline · Built with FastAPI &amp; OpenAI Whisper</p>
+    </footer>
+
+  </div><!-- /page-wrap -->
+
+  <script src="app.js"></script>
+</body>
+</html>

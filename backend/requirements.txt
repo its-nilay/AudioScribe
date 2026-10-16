@@ -1,0 +1,15 @@
+﻿# ── Core API framework ───────────────────────────────────────
+fastapi>=0.115,<1.0          # async web framework + OpenAPI docs at /docs
+uvicorn[standard]>=0.30,<1.0 # ASGI server (includes websockets + watchfiles)
+python-multipart>=0.0.9      # required for file upload (multipart/form-data)
+
+# ── Speech-to-text ───────────────────────────────────────────
+openai-whisper               # local Whisper inference — no API key needed
+# Whisper also depends on: torch, numpy, tqdm, more-itertools, tiktoken
+# These are pulled automatically by pip.
+
+# ── Audio format conversion ──────────────────────────────────
+pydub>=0.25                  # audio decoding/resampling; needs FFmpeg on PATH
+
+# ── HTTP client (used by test scripts only) ──────────────────
+requests>=2.31               # used by run_and_test.py / test_pipeline.py
